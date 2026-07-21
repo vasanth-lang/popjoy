@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pop Joy — Tap. Match. Pop. Repeat!</title>
+  <meta name="description"
+    content="Pop Joy is the chunkiest, happiest block-popping puzzle on mobile. Five modes, endless boards, zero pressure." />
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ============================================================
+   POP JOY — landing page
+   Art direction: the game's own sprite art leads. No emoji as
+   iconography, no per-section gradient competition. Sections
+   alternate dark/light so the page has rhythm and the hero
+   stays the single loudest moment.
+   ============================================================ */
+    :root {
+      /* tile colours — sampled from the actual sprite art */
+      --red: #e8352e;
+      --orange: #ff8a1e;
+      --yellow: #ffc41f;
+      --green: #7ac832;
+      --blue: #2c9ff0;
+      --purple: #9b4de0;
+
+      /* structural palette: two darks, two lights. That's it. */
+      --night: #061634;
+      --deep: #0b3f9e;
+      --paper: #ffffff;
+      --paper-soft: #f2f7ff;
+
+      --ink: #0e2559;
+      --ink-soft: #5b73a8;
+      --ink-invert: #ffffff;
+
+      /* one type scale, shared by every section */
+      --step--1: clamp(.82rem, .79rem + .15vw, .9rem);
+      --step-0: clamp(1rem, .96rem + .2vw, 1.12rem);
+      --step-1: clamp(1.25rem, 1.15rem + .5vw, 1.5rem);
+      --step-2: clamp(1.6rem, 1.4rem + 1vw, 2.1rem);
+      --step-3: clamp(2.1rem, 1.7rem + 2vw, 3rem);
+      --step-4: clamp(2.8rem, 2rem + 3.6vw, 4.4rem);
+
+      --r-lg: 30px;
+      --r-md: 20px;
+      --r-sm: 13px;
+      --nav-h: 70px;
+
+      --lift: 0 24px 50px rgba(6, 22, 60, .30);
+      --lift-sm: 0 10px 24px rgba(6, 22, 60, .16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Nunito", system-ui, sans-serif;
+      font-size: var(--step-0);
+      color: var(--ink);
+      background: var(--night);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    .chunky {
+      font-family: "Baloo 2", system-ui, sans-serif;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -.015em;
+      margin: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .wrap {
+      width: min(1160px, 90vw);
+      margin-inline: auto;
+    }
+
+    .vh {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    /* ---------- buttons ---------- */
+    .btn {
+      --c1: var(--yellow);
+      --c2: #f59300;
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      font-family: "Baloo 2", sans-serif;
+      font-weight: 800;
+      font-size: var(--step-0);
+      padding: .9rem 1.75rem;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      color: #4a2900;
+      background: linear-gradient(180deg, var(--c1), var(--c2));
+      box-shadow: 0 5px 0 rgba(0, 0, 0, .22), inset 0 2px 0 rgba(255, 255, 255, .5);
+      transition: transform .13s cubic-bezier(.3, 1.6, .5, 1), box-shadow .13s;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .35);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0 rgba(0, 0, 0, .22), inset 0 2px 0 rgba(255, 255, 255, .5);
+    }
+
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .22), inset 0 2px 0 rgba(255, 255, 255, .45);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: 3px;
+    }
+
+    .btn.ghost {
+      --c1: rgba(255, 255, 255, .14);
+      --c2: rgba(255, 255, 255, .06);
+      color: #fff;
+      text-shadow: none;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .5), 0 5px 0 rgba(0, 0, 0, .16);
+    }
+
+    /* ---------- nav ---------- */
+    .nav {
+      position: fixed;
+      inset: 14px 0 auto;
+      z-index: 60;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .nav-inner {
+      width: min(1160px, 90vw);
+      margin-inline: auto;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: .45rem .55rem .45rem .7rem;
+      border-radius: 999px;
+      background: rgba(6, 22, 60, .5);
+      backdrop-filter: blur(16px) saturate(1.4);
+      box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .14), 0 10px 28px rgba(4, 16, 44, .3);
+      transition: background .3s;
+    }
+
+    .nav.scrolled .nav-inner {
+      background: rgba(6, 22, 60, .9);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      color: #fff;
+      font-family: "Baloo 2";
+      font-size: var(--step-1);
+    }
+
+    .brand img {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, .35);
+    }
+
+    .nav nav {
+      margin-left: auto;
+      display: flex;
+      gap: .15rem;
+    }
+
+    .nav nav a {
+      color: #c9dcff;
+      font-weight: 700;
+      font-size: var(--step--1);
+      padding: .55rem .9rem;
+      border-radius: 999px;
+      transition: background .2s, color .2s;
+    }
+
+    .nav nav a:hover {
+      background: rgba(255, 255, 255, .14);
+      color: #fff;
+    }
+
+    @media(max-width:900px) {
+      .nav nav {
+        display: none;
+      }
+    }
+
+    /* ============================================================
+   HERO — the one loud moment on the page
+   ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: calc(var(--nav-h) + 46px) 0 70px;
+      background:
+        radial-gradient(120% 80% at 50% 8%, #2f9ff5 0%, #1268da 42%, var(--deep) 72%, #072a6d 100%);
+    }
+
+    .layer {
+      position: absolute;
+      inset: -8% -4%;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .glow {
+      background: radial-gradient(44% 36% at 50% 26%, rgba(255, 255, 255, .42), transparent 70%);
+    }
+
+    .rays {
+      background: repeating-conic-gradient(from 0deg at 50% 28%,
+          rgba(255, 255, 255, .10) 0deg 6deg, transparent 6deg 15deg);
+      animation: spin 110s linear infinite;
+      opacity: .6;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .cloud {
+      position: absolute;
+      filter: drop-shadow(0 12px 18px rgba(6, 28, 70, .16));
+    }
+
+    .cloud b {
+      display: block;
+      background: #fff;
+      border-radius: 999px;
+    }
+
+    .cloud i {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    /* floating real tile sprites instead of CSS squares */
+    .float-tile {
+      position: absolute;
+      animation: bob var(--dur, 8s) ease-in-out infinite alternate;
+      filter: drop-shadow(0 14px 22px rgba(4, 18, 52, .4));
+    }
+
+    @keyframes bob {
+      from {
+        transform: translateY(0) rotate(var(--rot, 0deg));
+      }
+
+      to {
+        transform: translateY(-24px) rotate(calc(var(--rot, 0deg) + 8deg));
+      }
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: 1.02fr .98fr;
+      gap: 2.5rem;
+      align-items: center;
+      width: min(1160px, 90vw);
+      margin-inline: auto;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    @media(max-width:980px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-content {
+        align-items: center;
+        text-align: center;
+      }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      color: #fff;
+      font-weight: 800;
+      background: rgba(255, 255, 255, .15);
+      padding: .4rem .95rem;
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .3);
+      font-size: var(--step--1);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    /* the real wordmark, not CSS letters */
+    .hero-logo {
+      margin: .8rem 0 .9rem;
+      width: 100%;
+    }
+
+    .hero-logo img {
+      max-width: 460px;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 16px 30px rgba(3, 16, 48, .5));
+      animation: logoIn .8s cubic-bezier(.2, 1.5, .4, 1) both;
+    }
+
+    @media(max-width:980px) {
+      .hero-logo img {
+        margin-inline: auto;
+      }
+    }
+
+    @keyframes logoIn {
+      from {
+        opacity: 0;
+        transform: translateY(28px) scale(.86);
+      }
+    }
+
+    .tagline {
+      display: inline-flex;
+      gap: .55rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: #fff;
+      color: var(--ink);
+      font-family: "Baloo 2";
+      font-size: var(--step-1);
+      padding: .45rem 1.4rem;
+      border-radius: 999px;
+      box-shadow: var(--lift-sm);
+      transform: rotate(-1.4deg);
+      transform-origin: left center;
+      margin-bottom: 1.2rem;
+    }
+
+    .tagline em {
+      font-style: normal;
+    }
+
+    @media(max-width:980px) {
+      .tagline {
+        transform-origin: center;
+      }
+    }
+
+    .lede {
+      color: #d5e7ff;
+      font-size: var(--step-0);
+      max-width: 44ch;
+      line-height: 1.65;
+      margin: 0 0 1.8rem;
+    }
+
+    @media(max-width:980px) {
+      .lede {
+        margin-inline: auto;
+      }
+    }
+
+    .cta-row {
+      display: flex;
+      gap: .85rem;
+      flex-wrap: wrap;
+    }
+
+    @media(max-width:980px) {
+      .cta-row {
+        justify-content: center;
+      }
+    }
+
+    /* Mascot anchors to the phone itself, not the outer column — the switch
+   buttons live outside this holder so they can never be covered. */
+    .phone-holder {
+      position: relative;
+    }
+
+    .hero-mascot {
+      position: absolute;
+      left: -72px;
+      bottom: -18px;
+      width: 172px;
+      z-index: 6;
+      filter: drop-shadow(0 20px 26px rgba(3, 16, 48, .45));
+      animation: mascotBob 4.5s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes mascotBob {
+      from {
+        transform: translateY(0) rotate(-2deg);
+      }
+
+      to {
+        transform: translateY(-14px) rotate(2deg);
+      }
+    }
+
+    @media(max-width:980px) {
+      .hero-mascot {
+        width: 112px;
+        left: -18px;
+        bottom: -8px;
+      }
+    }
+
+    /* ---------- phone ---------- */
+    .phone-stage {
+      display: flex;
+      justify-content: center;
+      perspective: 1400px;
+    }
+
+    .phone-stage>div {
+      position: relative;
+    }
+
+    .phone {
+      position: relative;
+      width: min(320px, 78vw);
+      aspect-ratio: 9/19.2;
+      border-radius: 44px;
+      padding: 10px;
+      background: linear-gradient(160deg, #1a2a4d, #080f1f);
+      box-shadow: 0 40px 70px rgba(3, 14, 40, .6), inset 0 0 0 2px rgba(255, 255, 255, .13);
+      transform: rotateY(calc(var(--mx, 0) * -6deg)) rotateX(calc(var(--my, 0) * 4deg));
+      transition: transform .25s ease-out;
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 82px;
+      height: 21px;
+      border-radius: 999px;
+      background: #080f1f;
+      z-index: 9;
+    }
+
+    .screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 35px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #0a53d6, #39a8f2 55%, #7ed24c 100%);
+    }
+
+    .screen-pane {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      padding: 32px 11px 9px;
+    }
+
+    .screen-pane.on {
+      display: flex;
+      animation: fadeUp .4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+    }
+
+    .shot {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 4;
+    }
+
+    .hud {
+      display: flex;
+      gap: 5px;
+    }
+
+    .hud .box {
+      flex: 1;
+      background: #fff;
+      border-radius: 12px;
+      padding: .3rem;
+      text-align: center;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, .16);
+    }
+
+    .hud .box span {
+      display: block;
+      font-size: .42rem;
+      font-weight: 800;
+      color: var(--ink-soft);
+      letter-spacing: .06em;
+    }
+
+    .hud .box b {
+      font-family: "Baloo 2";
+      font-size: .95rem;
+      color: var(--ink);
+    }
+
+    .board {
+      margin-top: 8px;
+      background: rgba(255, 255, 255, .2);
+      border-radius: 16px;
+      padding: 6px;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35);
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 3px;
+      aspect-ratio: 1;
+    }
+
+    /* board tiles are the real sprite art, not CSS gradients */
+    .tile {
+      border: none;
+      padding: 0;
+      background: transparent center/100% 100% no-repeat;
+      cursor: pointer;
+      position: relative;
+      aspect-ratio: 1;
+      transition: transform .14s cubic-bezier(.3, 1.7, .5, 1), filter .14s;
+      animation: drop .3s cubic-bezier(.25, 1.5, .5, 1) backwards;
+    }
+
+    @keyframes drop {
+      from {
+        transform: translateY(-150%) scale(.7);
+        opacity: 0;
+      }
+    }
+
+    .tile:hover {
+      transform: scale(1.1);
+      filter: brightness(1.15);
+    }
+
+    .tile:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 1px;
+      border-radius: 8px;
+    }
+
+    /* Invisible placeholder keeping grid layout when a cube is popped mid-round */
+    .tile--empty {
+      background: none;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    .tile.pop {
+      animation: popOut .3s ease forwards;
+      pointer-events: none;
+    }
+
+    @keyframes popOut {
+      55% {
+        transform: scale(1.32);
+        filter: brightness(1.7);
+      }
+
+      100% {
+        transform: scale(0);
+        opacity: 0;
+      }
+    }
+
+    .combo {
+      position: absolute;
+      left: 50%;
+      top: 44%;
+      transform: translate(-50%, -50%);
+      z-index: 8;
+      font-family: "Baloo 2";
+      font-size: 1.8rem;
+      color: #fff;
+      text-shadow: 0 3px 0 rgba(0, 0, 0, .3);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .combo.show {
+      animation: comboPop .8s ease forwards;
+    }
+
+    @keyframes comboPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(.4) rotate(-8deg);
+      }
+
+      35% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15) rotate(3deg);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -160%) scale(1);
+      }
+    }
+
+    .tabbar {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(255, 255, 255, .9);
+      border-radius: 15px;
+      padding: .35rem;
+      color: var(--ink);
+      font-size: .46rem;
+      font-weight: 800;
+    }
+
+    .tabbar .act {
+      background: var(--purple);
+      color: #fff;
+      padding: .3rem .6rem;
+      border-radius: 11px;
+    }
+
+    .screen-switch {
+      display: flex;
+      gap: .35rem;
+      justify-content: center;
+      margin-top: 1.1rem;
+    }
+
+    .screen-switch button {
+      font-family: "Baloo 2";
+      font-size: var(--step--1);
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      background: rgba(255, 255, 255, .14);
+      padding: .45rem 1.05rem;
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .32);
+      transition: .2s;
+    }
+
+    .screen-switch button.on {
+      background: var(--yellow);
+      color: #4a2900;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, .2);
+    }
+
+    .play-hint {
+      text-align: center;
+      color: #cfe3ff;
+      font-weight: 700;
+      font-size: var(--step--1);
+      margin: .6rem 0 0;
+    }
+
+    /* ============================================================
+   SECTION SYSTEM
+   ============================================================ */
+    section {
+      position: relative;
+    }
+
+    .section-pad {
+      padding: clamp(84px, 10vw, 140px) 0;
+    }
+
+    .band-light {
+      background: var(--paper);
+    }
+
+    .band-soft {
+      background: var(--paper-soft);
+    }
+
+    .band-dark {
+      background: var(--night);
+      color: var(--ink-invert);
+    }
+
+    .band-dark .sec-head p {
+      color: #a9c2ee;
+    }
+
+    .band-dark .kicker {
+      color: #7fb0ff;
+    }
+
+    .sec-head {
+      text-align: center;
+      max-width: 660px;
+      margin: 0 auto clamp(2.6rem, 5vw, 4rem);
+    }
+
+    .sec-head h2 {
+      font-size: var(--step-3);
+      margin: .5rem 0 .8rem;
+    }
+
+    .sec-head p {
+      font-size: var(--step-0);
+      line-height: 1.65;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .kicker {
+      font-family: "Baloo 2";
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-size: var(--step--1);
+      color: var(--blue);
+    }
+
+    /* a row of real tiles that drops in above a heading — the page's
+   signature motion, lifted straight from the game's board refill */
+    .tile-run {
+      display: flex;
+      gap: .5rem;
+      justify-content: center;
+      margin-bottom: 1.4rem;
+    }
+
+    .tile-run img {
+      width: clamp(34px, 4vw, 46px);
+      filter: drop-shadow(0 8px 12px rgba(6, 22, 60, .25));
+    }
+
+    /* marquee */
+    .marquee {
+      background: var(--yellow);
+      color: #4a2900;
+      padding: .85rem 0;
+      overflow: hidden;
+      position: relative;
+      z-index: 6;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, .1);
+      transform: rotate(-1.2deg) scale(1.04);
+      margin-top: -38px;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 2.2rem;
+      width: max-content;
+      animation: slide 30s linear infinite;
+      font-family: "Baloo 2";
+      font-size: var(--step-1);
+      white-space: nowrap;
+      align-items: center;
+    }
+
+    .marquee-track span {
+      display: flex;
+      align-items: center;
+      gap: 2.2rem;
+    }
+
+    .marquee-track img {
+      width: 26px;
+    }
+
+    @keyframes slide {
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* ============================================================
+   MODES — art-led cards, tile sprite as the icon
+   ============================================================ */
+    /* 6-column base lets the row split 3+2 (2+2+2 then 3+3) so the grid always
+   fills completely — auto-fit left the featured card stranded beside a gap. */
+    .mode-cards {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1.3rem;
+    }
+
+    .mcard {
+      grid-column: span 2;
+    }
+
+    .mcard {
+      --c1: var(--purple);
+      --c2: #7a2fc0;
+      position: relative;
+      border-radius: var(--r-lg);
+      padding: 1.7rem 1.5rem;
+      color: #fff;
+      overflow: hidden;
+      background: linear-gradient(160deg, var(--c1), var(--c2));
+      box-shadow: var(--lift);
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      transition: transform .25s ease-out, box-shadow .25s;
+    }
+
+    .mcard::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      bottom: -40px;
+      width: 170px;
+      height: 170px;
+      border-radius: 38%;
+      background: rgba(255, 255, 255, .1);
+      transition: transform .45s cubic-bezier(.2, 1.2, .3, 1);
+    }
+
+    .mcard:hover::after {
+      transform: scale(1.3) rotate(22deg);
+    }
+
+    .mcard-icon {
+      width: 60px;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .3));
+      transition: transform .35s cubic-bezier(.3, 1.6, .5, 1);
+    }
+
+    .mcard:hover .mcard-icon {
+      transform: translateY(-6px) rotate(-10deg) scale(1.08);
+    }
+
+    .mcard h3 {
+      font-size: var(--step-2);
+      margin-bottom: .45rem;
+    }
+
+    .mcard p {
+      margin: 0;
+      font-weight: 600;
+      line-height: 1.55;
+      max-width: 26ch;
+      color: rgba(255, 255, 255, .92);
+      position: relative;
+      z-index: 2;
+    }
+
+    .m-play {
+      --c1: #9b4de0;
+      --c2: #6f27b5;
+    }
+
+    .m-calm {
+      --c1: #ffc41f;
+      --c2: #ef8a06;
+      color: #5a3200;
+    }
+
+    .m-calm p {
+      color: rgba(70, 38, 0, .85);
+    }
+
+    .m-mixed {
+      --c1: #7ac832;
+      --c2: #3f8f1c;
+    }
+
+    .m-rush {
+      --c1: #2c9ff0;
+      --c2: #0b62c9;
+    }
+
+    .m-grown {
+      --c1: #ff4d94;
+      --c2: #d61e6b;
+    }
+
+    /* the two cards on the second row are wider, so they run horizontally
+   and carry a mascot in the space that opens up */
+    .mcard--wide {
+      grid-column: span 3;
+      flex-direction: row;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .mcard--wide .m-body {
+      flex: 1;
+    }
+
+    .mcard--wide p {
+      max-width: 32ch;
+    }
+
+    .mcard--wide img.m-dino {
+      width: 132px;
+      flex: none;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 14px 20px rgba(0, 0, 0, .32));
+      transition: transform .35s cubic-bezier(.3, 1.5, .5, 1);
+    }
+
+    .mcard--wide:hover img.m-dino {
+      transform: translateY(-8px) rotate(3deg);
+    }
+
+    @media(max-width:1080px) {
+      .mode-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .mcard,
+      .mcard--wide {
+        grid-column: span 1;
+      }
+
+      .mcard--wide {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .mcard--wide img.m-dino {
+        width: 104px;
+        align-self: center;
+      }
+    }
+
+    @media(max-width:640px) {
+      .mode-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================================
+   SCREENS — dark band so the screenshots glow
+   ============================================================ */
+    .shot-grid {
+      display: flex;
+      gap: clamp(1rem, 3vw, 2.4rem);
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .shot-card {
+      margin: 0;
+      width: min(256px, 70vw);
+      will-change: transform;
+    }
+
+    .shot-card img {
+      width: 100%;
+      border-radius: 26px;
+      background: #0a53d6;
+      box-shadow: 0 30px 56px rgba(0, 0, 0, .5), inset 0 0 0 2px rgba(255, 255, 255, .14);
+      transition: transform .35s cubic-bezier(.2, 1.4, .4, 1);
+    }
+
+    .shot-card:hover img {
+      transform: translateY(-12px) scale(1.03) rotate(-1deg);
+    }
+
+    .shot-card figcaption {
+      margin-top: 1rem;
+      text-align: center;
+      font-family: "Baloo 2";
+      font-size: var(--step-0);
+      color: #cddffc;
+    }
+
+    .shot-grid:empty {
+      display: none;
+    }
+
+    @media(max-width:820px) {
+      .shot-card {
+        width: min(230px, 78vw);
+      }
+    }
+
+    /* ============================================================
+   HOW TO PLAY — a real auto-playing board demonstrates it
+   ============================================================ */
+    #how {
+      overflow: hidden;
+    }
+
+    /* clips the peeking mascot at the section edge */
+    .how-grid {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: center;
+    }
+
+    @media(max-width:900px) {
+      .how-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.1rem;
+      align-items: flex-start;
+    }
+
+    .step .num {
+      flex: none;
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-family: "Baloo 2";
+      font-size: var(--step-1);
+      color: #fff;
+      box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .2), inset 0 3px 0 rgba(255, 255, 255, .35);
+    }
+
+    .step h3 {
+      font-size: var(--step-1);
+      margin-bottom: .3rem;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    /* the demo board — same mechanic as the phone, playing itself */
+    .find-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+      background: #ffffff;
+      padding: .45rem 1.4rem .45rem .6rem;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(6, 22, 60, .16), inset 0 0 0 2.5px #2c9ff0;
+      margin-bottom: .6rem;
+    }
+
+    .find-dino {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      margin-left: -6px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .2));
+    }
+
+    .find-text {
+      font-family: "Baloo 2", sans-serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: #0b3f9e;
+      letter-spacing: .08em;
+    }
+
+    .find-tile {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .25));
+      transition: transform .3s cubic-bezier(.3, 1.6, .5, 1);
+    }
+
+    .find-tile.pop {
+      animation: tileBounce .4s cubic-bezier(.3, 1.6, .5, 1);
+    }
+
+    @keyframes tileBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35) rotate(10deg); }
+      100% { transform: scale(1); }
+    }
+
+    .find-banner--phone {
+      margin: 6px auto 4px;
+      padding: .3rem 1.1rem .3rem .5rem;
+      gap: .55rem;
+      box-shadow: 0 6px 16px rgba(6, 22, 60, .2), inset 0 0 0 2px #2c9ff0;
+    }
+
+    .find-banner--phone .find-dino {
+      width: 34px;
+      height: 34px;
+      margin-left: -4px;
+    }
+
+    .find-banner--phone .find-text {
+      font-size: 1.05rem;
+      letter-spacing: .06em;
+    }
+
+    .find-banner--phone .find-tile {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* Current active tile — slightly larger to stand out */
+    .find-tile--current {
+      width: 34px;
+      height: 34px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,.3));
+    }
+
+    /* "NEXT" queue preview area */
+    .find-queue {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(44,159,240,.12);
+      border-radius: 999px;
+      padding: 3px 8px 3px 6px;
+      border: 1.5px solid rgba(44,159,240,.35);
+      margin-left: 2px;
+    }
+
+    .find-queue-label {
+      font-family: "Baloo 2", sans-serif;
+      font-weight: 700;
+      font-size: 0.58rem;
+      color: #2c9ff0;
+      letter-spacing: .06em;
+      line-height: 1;
+      margin-right: 2px;
+      opacity: .85;
+    }
+
+    .find-queue-tile {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      opacity: 0.72;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,.2));
+      transition: opacity .3s;
+    }
+
+    @media(max-width: 480px) {
+      .find-queue-tile { width: 16px; height: 16px; }
+      .find-tile--current { width: 26px; height: 26px; }
+      .find-banner {
+        padding: .35rem 1rem .35rem .5rem;
+        gap: .55rem;
+      }
+      .find-dino {
+        width: 36px;
+        height: 36px;
+      }
+      .find-text {
+        font-size: 1.15rem;
+      }
+      .find-tile {
+        width: 30px;
+        height: 30px;
+      }
+      .phone {
+        width: min(290px, 86vw);
+        padding: 8px;
+        border-radius: 36px;
+      }
+      .hero-mascot {
+        width: 96px;
+        left: -12px;
+        bottom: -6px;
+      }
+    }
+
+    .demo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .demo-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      width: min(340px, 84vw);
+      background: linear-gradient(160deg, #1268da, #0a3f92);
+      padding: 14px;
+      border-radius: 26px;
+      box-shadow: var(--lift), inset 0 0 0 2px rgba(255, 255, 255, .16);
+    }
+
+    .demo-board .dtile {
+      aspect-ratio: 1;
+      background: center/100% 100% no-repeat;
+      transition: transform .25s cubic-bezier(.3, 1.6, .5, 1), filter .25s;
+    }
+
+    .demo-board .dtile.hi {
+      transform: scale(1.18);
+      filter: brightness(1.3) drop-shadow(0 0 14px rgba(255, 255, 255, .9)) drop-shadow(0 0 6px rgba(255, 255, 255, .6));
+    }
+
+    .demo-board .dtile.gone {
+      animation: popOut .32s ease forwards;
+    }
+
+    .demo-caption {
+      font-family: "Baloo 2";
+      color: var(--ink-soft);
+      font-size: var(--step--1);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    /* ============================================================
+   REVIEWS
+   ============================================================ */
+    .rev-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1.3rem;
+    }
+
+    .rev {
+      background: #fff;
+      border-radius: var(--r-md);
+      padding: 1.6rem;
+      box-shadow: var(--lift-sm);
+      transform: rotate(var(--tilt, 0deg));
+      transition: transform .25s;
+    }
+
+    .rev:hover {
+      transform: rotate(0) translateY(-6px);
+    }
+
+    .rev .stars {
+      color: var(--yellow);
+      font-size: var(--step-0);
+      letter-spacing: .12em;
+    }
+
+    .rev p {
+      line-height: 1.65;
+      font-weight: 600;
+    }
+
+    .rev footer {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      font-weight: 800;
+      font-size: var(--step--1);
+      color: var(--ink-soft);
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-family: "Baloo 2";
+    }
+
+    /* ============================================================
+   DOWNLOAD — the final bright note
+   ============================================================ */
+    #get {
+      background: linear-gradient(165deg, #ffd54a, #ff9a12 60%, #f97a06);
+      color: #4a2900;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    #get h2 {
+      font-size: var(--step-4);
+    }
+
+    #get p {
+      color: rgba(74, 41, 0, .8);
+      font-size: var(--step-0);
+      max-width: 44ch;
+      margin: .8rem auto 0;
+      line-height: 1.6;
+    }
+
+    .get-dino {
+      width: min(230px, 52vw);
+      margin: 0 auto 1.4rem;
+      filter: drop-shadow(0 22px 30px rgba(120, 60, 0, .35));
+      animation: mascotBob 4s ease-in-out infinite alternate;
+    }
+
+    .store-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .store {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      background: var(--night);
+      color: #fff;
+      padding: .85rem 1.6rem;
+      border-radius: 16px;
+      box-shadow: 0 7px 0 rgba(0, 0, 0, .22);
+      transition: transform .15s;
+    }
+
+    .store:hover {
+      transform: translateY(-4px);
+    }
+
+    .store b {
+      font-family: "Baloo 2";
+      font-size: var(--step-0);
+      line-height: 1.1;
+      display: block;
+    }
+
+    .store span {
+      font-size: .68rem;
+      opacity: .7;
+    }
+
+    footer.site {
+      background: var(--night);
+      color: #8fa9d8;
+      padding: 3.2rem 0;
+      text-align: center;
+      font-size: var(--step--1);
+    }
+
+    footer.site img {
+      width: 52px;
+      border-radius: 15px;
+      margin: 0 auto .9rem;
+    }
+
+    footer.site a:hover {
+      color: #fff;
+    }
+
+    /* ============================================================
+   MOTION — the signature "board refill" drop
+   Tiles fall from above and settle with a bounce, staggered,
+   exactly like new blocks raining into the game board.
+   ============================================================ */
+    .drop {
+      opacity: 0;
+    }
+
+    .dropped .drop {
+      animation: tileDrop .66s cubic-bezier(.28, 1.45, .5, 1) both;
+      animation-delay: var(--d, 0s);
+    }
+
+    @keyframes tileDrop {
+      0% {
+        opacity: 0;
+        transform: translateY(-150px) scale(.7) rotate(var(--r, -12deg));
+      }
+
+      55% {
+        opacity: 1;
+        transform: translateY(10px) scale(1.06) rotate(0);
+      }
+
+      75% {
+        transform: translateY(-6px) scale(.98);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotate(0);
+      }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .7s ease, transform .7s cubic-bezier(.2, .9, .3, 1);
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    .reveal.d1 {
+      transition-delay: .09s
+    }
+
+    .reveal.d2 {
+      transition-delay: .18s
+    }
+
+    .reveal.d3 {
+      transition-delay: .27s
+    }
+
+    .reveal.d4 {
+      transition-delay: .36s
+    }
+
+    /* Mascot rises from behind the section's bottom edge. The host section
+   clips him (overflow:hidden), which is what sells it as a peek rather
+   than a character floating over the next band. */
+    .peek {
+      position: absolute;
+      bottom: 0;
+      right: 6%;
+      width: 150px;
+      z-index: 4;
+      pointer-events: none;
+      transform: translateY(100%);
+      transition: transform .9s cubic-bezier(.25, 1.4, .4, 1);
+    }
+
+    .peek.in {
+      transform: translateY(26%);
+    }
+
+    @media(max-width:760px) {
+      .peek {
+        width: 90px;
+        right: 2%;
+      }
+    }
+
+    .confetti {
+      position: fixed;
+      width: 9px;
+      height: 13px;
+      z-index: 200;
+      pointer-events: none;
+      border-radius: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      .drop {
+        opacity: 1;
+      }
+
+      .peek {
+        transform: translateY(14%);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top"><img src="assets/icon.png" alt="" /> Pop&nbsp;Joy</a>
+      <nav>
+        <a href="#modes">Modes</a>
+        <a href="#screens">Screens</a>
+        <a href="#how">How to play</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#get">Download</a>
+      </nav>
+      <a class="btn" href="#get">Play free</a>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top">
+    <div class="layer glow" data-depth="0.04"></div>
+    <div class="layer rays" data-depth="0.02"></div>
+    <div class="layer" data-depth="0.10" id="cloudLayer"></div>
+    <div class="layer" data-depth="0.24" id="blockLayer"></div>
+
+    <div class="hero-grid">
+      <div class="hero-content">
+        <span class="eyebrow reveal">Free · No ads mid-game</span>
+        <h1 class="hero-logo"><img src="assets/sprites/logo.png" alt="Pop Joy" /></h1>
+        <div class="tagline reveal d1">
+          <em style="color:#2c9ff0">TAP.</em> <em style="color:#7ac832">MATCH.</em>
+          <em style="color:#e8352e">POP.</em> <em style="color:#ff8a1e">REPEAT!</em>
+        </div>
+        <p class="lede reveal d2">The chunkiest, happiest block-popping puzzle on your phone. Five modes, endless
+          boards, and a little blue dino who is genuinely proud of you.</p>
+        <div class="cta-row reveal d3">
+          <a class="btn" href="#get">Download free</a>
+          <button class="btn ghost" id="tryBtn">Try it right here ▶</button>
+        </div>
+      </div>
+
+      <div class="phone-stage reveal d2">
+        <div>
+          <div class="phone-holder">
+            <img class="hero-mascot" src="assets/sprites/dino-cheer.png" alt="" />
+            <div class="phone" id="phone">
+              <div class="screen">
+                <!-- HOME PANE: real screenshot, CSS fallback beneath -->
+                <div class="screen-pane on" data-pane="home">
+                  <img class="shot" src="assets/screen-home.jpg" alt="Pop Joy home screen" onerror="this.remove()" />
+                  <img src="assets/sprites/logo.png" alt="" style="width:80%;margin:1.4rem auto 1rem" />
+                  <div class="tabbar">
+                    <div>STORE</div>
+                    <div>TASKS</div>
+                    <div class="act">HOME</div>
+                    <div>STATS</div>
+                    <div>PROFILE</div>
+                  </div>
+                </div>
+
+                <!-- PLAY PANE: genuinely playable -->
+                <div class="screen-pane" data-pane="play">
+                  <div class="hud">
+                    <div class="box"><span>SCORE</span><b id="uiScore">0</b></div>
+                    <div class="box"><span>TIME</span><b id="uiTime">54</b></div>
+                    <div class="box"><span>MOVES</span><b id="uiMoves">20</b></div>
+                  </div>
+                  <div class="find-banner find-banner--phone" id="findPhoneBanner">
+                    <img class="find-dino" src="assets/sprites/dino-point.png" alt="PJ Dino" />
+                    <span class="find-text">FIND</span>
+                    <img class="find-tile" id="findPhoneTileImg" src="assets/sprites/tile-red.png" alt="Target Tile" />
+                  </div>
+                  <div class="board" id="board"></div>
+                  <div class="combo" id="combo"></div>
+                  <div class="tabbar">
+                    <div>HINT</div>
+                    <div class="act">TAP TO POP</div>
+                    <div>BOMB</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="screen-switch">
+            <button class="on" data-go="home">Home screen</button>
+            <button data-go="play">Playable demo</button>
+          </div>
+          <p class="play-hint">Tap 2+ touching blocks of the same colour</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
+
+  <!-- ================= MODES ================= -->
+  <section id="modes" class="section-pad band-light">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="tile-run" id="runModes" aria-hidden="true"></div>
+        <span class="kicker">Five ways to play</span>
+        <h2>Pick your mood.<br />Every one of them pops.</h2>
+        <p>Four seconds in a lift or forty minutes on the sofa — there's a board waiting either way.</p>
+      </div>
+      <div class="mode-cards">
+        <article class="mcard m-play reveal">
+          <img class="mcard-icon" src="assets/sprites/tile-purple.png" alt="" />
+          <h3>Play</h3>
+          <p>Classic mode. Pop colours, chain combos, climb the board.</p>
+        </article>
+        <article class="mcard m-calm reveal d1">
+          <img class="mcard-icon" src="assets/sprites/tile-yellow.png" alt="" />
+          <h3>Calm Play</h3>
+          <p>No timer. No pressure. Just you and a very satisfying pop.</p>
+        </article>
+        <article class="mcard m-mixed reveal d2">
+          <img class="mcard-icon" src="assets/sprites/tile-green.png" alt="" />
+          <h3>Mixed Challenge</h3>
+          <p>Colours, numbers, alphabets and more — all on one board.</p>
+        </article>
+        <article class="mcard mcard--wide m-rush reveal d3">
+          <div class="m-body">
+            <img class="mcard-icon" src="assets/sprites/boost-rocket.png" alt="" />
+            <h3>Quick Rush</h3>
+            <p>Beat the clock. Pop as fast as your thumbs allow.</p>
+          </div>
+          <img class="m-dino" src="assets/sprites/dino-stand.png" alt="" />
+        </article>
+        <article class="mcard mcard--wide m-grown reveal d4">
+          <div class="m-body">
+            <img class="mcard-icon" src="assets/sprites/boost-bomb.png" alt="" />
+            <h3>Grown-Ups</h3>
+            <p>Genuinely hard puzzles for sharp minds. The dino wears glasses for this one.</p>
+          </div>
+          <img class="m-dino" src="assets/sprites/dino-sit.png" alt="" />
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SCREENS ================= -->
+  <section id="screens" class="section-pad band-dark">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Straight from the app</span>
+        <h2>No mockups. This is the game.</h2>
+      </div>
+      <div class="shot-grid" id="shotGrid">
+        <figure class="shot-card reveal" data-drift="0.05">
+          <img src="assets/screen-home.jpg" alt="Pop Joy home screen — five game modes"
+            onerror="this.closest('figure').remove()" />
+          <figcaption>Home — five modes, one tap away</figcaption>
+        </figure>
+        <figure class="shot-card reveal d1" data-drift="0.10">
+          <img src="assets/screen-play.jpg" alt="Pop Joy gameplay — matching coloured blocks"
+            onerror="this.closest('figure').remove()" />
+          <figcaption>Classic Play — find it, tap it, pop it</figcaption>
+        </figure>
+        <figure class="shot-card reveal d2" data-drift="0.07">
+          <img src="assets/screen-splash.jpg" alt="Pop Joy loading screen with the PJ dino mascot"
+            onerror="this.closest('figure').remove()" />
+          <figcaption>Three seconds from tap to pop</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW TO PLAY ================= -->
+  <section id="how" class="section-pad band-light">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="kicker">Learn it in 8 seconds</span>
+        <h2>Tap. Match. Pop. Repeat.</h2>
+        <p>That's the entire tutorial. Everything else is just you getting better.</p>
+      </div>
+      <div class="how-grid">
+        <div class="steps">
+          <div class="step reveal">
+            <div class="num" style="background:linear-gradient(160deg,#e8352e,#b31d17)">1</div>
+            <div>
+              <h3>Tap a group</h3>
+              <p>Find two or more blocks of the same colour touching each other. Tap once.</p>
+            </div>
+          </div>
+          <div class="step reveal d1">
+            <div class="num" style="background:linear-gradient(160deg,#ffc41f,#e08c00)">2</div>
+            <div>
+              <h3>Watch it pop</h3>
+              <p>They burst, everything above tumbles down, and new blocks rain in from the sky.</p>
+            </div>
+          </div>
+          <div class="step reveal d2">
+            <div class="num" style="background:linear-gradient(160deg,#7ac832,#3f8f1c)">3</div>
+            <div>
+              <h3>Chain the combo</h3>
+              <p>Bigger groups score exponentially. Five in a row and the whole screen celebrates.</p>
+            </div>
+          </div>
+        </div>
+        <div class="demo-wrap reveal d1">
+          <div class="find-banner" id="findBanner">
+            <img class="find-dino" src="assets/sprites/dino-point.png" alt="PJ Dino" />
+            <span class="find-text">FIND</span>
+            <img class="find-tile" id="findTileImg" src="assets/sprites/tile-red.png" alt="Target Tile" />
+          </div>
+          <div class="demo-board" id="demoBoard" aria-hidden="true"></div>
+          <p class="demo-caption">↑ Watch it play itself</p>
+        </div>
+      </div>
+    </div>
+    <img class="peek" src="assets/sprites/dino-point.png" alt="" />
+  </section>
+
+  <!-- ================= REVIEWS ================= -->
+  <section id="reviews" class="section-pad band-soft">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="tile-run" id="runRev" aria-hidden="true"></div>
+        <span class="kicker">What players say</span>
+        <h2>People are… quite attached to the dino.</h2>
+      </div>
+      <div class="rev-grid">
+        <div class="rev reveal" style="--tilt:-1.4deg">
+          <div class="stars">★★★★★</div>
+          <p>“My six-year-old plays Mixed Challenge, I play Grown-Ups, and we fight over the phone. Worth it.”</p>
+          <footer><span class="avatar" style="background:#9b4de0">A</span> Anita R.</footer>
+        </div>
+        <div class="rev reveal d1" style="--tilt:1.1deg">
+          <div class="stars">★★★★★</div>
+          <p>“Calm Play is the only thing that switches my brain off after work. No timer, no guilt.”</p>
+          <footer><span class="avatar" style="background:#2c9ff0">M</span> Marcus D.</footer>
+        </div>
+        <div class="rev reveal d2" style="--tilt:-.8deg">
+          <div class="stars">★★★★★</div>
+          <p>“Quick Rush is criminally addictive. I have a 54-second personal record and a problem.”</p>
+          <footer><span class="avatar" style="background:#ff4d94">S</span> Sofia L.</footer>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GET ================= -->
+  <section id="get" class="section-pad">
+    <div class="wrap">
+      <img class="get-dino" src="assets/sprites/dino-point.png" alt="" />
+      <h2>Go on. Pop something.</h2>
+      <p>Free to play, no ads in the middle of a board, and a dino who will be delighted to see you.</p>
+      <div class="store-row">
+        <a class="store" href="#"><span>Get it on</span><b>Google Play</b></a>
+        <a class="store" href="#"><span>Download on the</span><b>App Store</b></a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site">
+    <div class="wrap">
+      <img src="assets/icon.png" alt="" />
+      <p style="font-family:'Baloo 2';font-size:var(--step-1);color:#fff;margin:0 0 .4rem">Pop Joy</p>
+      <p>Tap. Match. Pop. Repeat. · <a href="#top">Back to top</a></p>
+    </div>
+  </footer>
+
+  <script>
+    /* ============================================================
+       0. Shared constants
+       The tile list pairs each sprite with its dominant colour, so
+       confetti bursts match the block that actually popped.
+       ============================================================ */
+    const TILES = [
+      { img: 'assets/sprites/tile-red.png', c: '#e8352e' },
+      { img: 'assets/sprites/tile-yellow.png', c: '#ffc41f' },
+      { img: 'assets/sprites/tile-green.png', c: '#7ac832' },
+      { img: 'assets/sprites/tile-blue.png', c: '#2c9ff0' },
+      { img: 'assets/sprites/tile-purple.png', c: '#9b4de0' },
+      { img: 'assets/sprites/tile-orange.png', c: '#ff8a1e' },
+    ];
+    const COLORS = TILES.map(t => t.c);
+    const rand = (a, b) => a + Math.random() * (b - a);
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    /* ============================================================
+       1. Hero decor — clouds and floating real tile sprites
+       Generated in JS so density scales with the viewport instead
+       of being hard-coded markup we'd maintain by hand.
+       ============================================================ */
+    (function decor() {
+      const cl = document.getElementById('cloudLayer');
+      [[6, 14, 1, .95], [70, 10, 1.25, .85], [38, 26, .7, .7], [86, 34, .85, .65], [18, 46, .55, .55]].forEach(([x, y, s, o]) => {
+        const c = document.createElement('div'); c.className = 'cloud';
+        c.style.cssText = `left:${x}%;top:${y}%;transform:scale(${s});opacity:${o}`;
+        c.innerHTML = `<b style="width:170px;height:44px"></b>
+      <i style="width:76px;height:76px;left:24px;top:-32px"></i>
+      <i style="width:56px;height:56px;left:88px;top:-24px"></i>`;
+        cl.appendChild(c);
+      });
+
+      /* Deliberately routed around the copy column (x 4-44%, y 12-58%) so no
+         block ever floats behind the headline or body text. */
+      const spots = [[3, 6, 72, -12], [89, 14, 60, 14], [79, 58, 68, -16], [47, 4, 46, 20],
+      [67, 40, 42, -8], [93, 48, 48, 6], [57, 74, 38, 12], [35, 86, 40, -14],
+      [72, 88, 34, 10], [10, 84, 52, 8], [24, 3, 34, 18], [96, 76, 40, -9]];
+      const bl = document.getElementById('blockLayer');
+      spots.forEach(([x, y, s, rot], i) => {
+        const img = document.createElement('img');
+        img.className = 'float-tile'; img.alt = ''; img.src = TILES[i % TILES.length].img;
+        img.style.cssText = `left:${x}%;top:${y}%;width:${s}px;--rot:${rot}deg;
+      --dur:${rand(6, 10).toFixed(1)}s;animation-delay:${rand(0, 3).toFixed(1)}s`;
+        bl.appendChild(img);
+      });
+    })();
+
+    /* ============================================================
+       2. Marquee — built from sprites so it matches the game art
+       ============================================================ */
+    (function marquee() {
+      const track = document.getElementById('marqueeTrack');
+      const words = ['POP!', 'MATCH!', 'COMBO!', 'RELAX!', 'RUSH!', 'REPEAT!'];
+      const chunk = () => {
+        const s = document.createElement('span');
+        words.forEach((w, i) => {
+          s.append(w);
+          const img = document.createElement('img'); img.alt = ''; img.src = TILES[i % TILES.length].img;
+          s.append(img);
+        });
+        return s;
+      };
+      track.append(chunk(), chunk());   // two copies so the -50% loop is seamless
+    })();
+
+    /* ============================================================
+       3. Parallax — one rAF loop, pointer eased toward its target
+       ============================================================ */
+    (function parallax() {
+      if (reduced) return;
+      const layers = [...document.querySelectorAll('.layer[data-depth]')];
+      const phone = document.getElementById('phone');
+      let sy = 0, mx = 0, my = 0, cx = 0, cy = 0, ticking = false;
+      const request = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } };
+
+      function frame() {
+        cx += (mx - cx) * 0.08; cy += (my - cy) * 0.08;
+        layers.forEach(l => {
+          const d = parseFloat(l.dataset.depth);
+          const host = l.closest('section');
+          const local = host ? (sy - host.offsetTop) : sy;
+          l.style.transform = `translate3d(${(-cx * d * 44).toFixed(2)}px, ${(local * d - cy * d * 28).toFixed(2)}px, 0)`;
+        });
+        if (phone) { phone.style.setProperty('--mx', cx.toFixed(3)); phone.style.setProperty('--my', cy.toFixed(3)); }
+        ticking = false;
+        if (Math.abs(mx - cx) > 0.001 || Math.abs(my - cy) > 0.001) request();
+      }
+      addEventListener('scroll', () => { sy = scrollY; request(); }, { passive: true });
+      addEventListener('pointermove', e => {
+        mx = (e.clientX / innerWidth - .5) * 2; my = (e.clientY / innerHeight - .5) * 2; request();
+      }, { passive: true });
+      frame();
+    })();
+
+    /* ============================================================
+       4. Screens gallery drift + auto-hide
+       ============================================================ */
+    (function screens() {
+      const sec = document.getElementById('screens'), grid = document.getElementById('shotGrid');
+      if (!sec || !grid) return;
+      addEventListener('load', () => { if (!grid.children.length) sec.remove(); });
+      if (reduced) return;
+      const cards = [...grid.querySelectorAll('.shot-card')];
+      addEventListener('scroll', () => {
+        const rel = scrollY - (sec.offsetTop - innerHeight / 2);
+        cards.forEach(c => {
+          if (!c.isConnected) return;
+          c.style.transform = `translate3d(0,${(-rel * parseFloat(c.dataset.drift)).toFixed(1)}px,0)`;
+        });
+      }, { passive: true });
+    })();
+
+    /* ============================================================
+       5. THE SIGNATURE MOTION — tile runs that drop in on scroll
+       A row of real block sprites rains down and settles above each
+       heading, mirroring the game's board refill.
+       ============================================================ */
+    (function tileRuns() {
+      const order = [0, 4, 2, 3, 1, 5];   // deliberately not rainbow order — reads as a shuffled board
+      document.querySelectorAll('.tile-run').forEach(run => {
+        order.forEach((t, i) => {
+          const img = document.createElement('img');
+          img.className = 'drop'; img.alt = ''; img.src = TILES[t].img;
+          img.style.cssText = `--d:${(i * 0.075).toFixed(3)}s;--r:${rand(-16, 16).toFixed(1)}deg`;
+          run.appendChild(img);
+        });
+      });
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('dropped'); io.unobserve(e.target); }
+      }), { threshold: .4 });
+      document.querySelectorAll('.tile-run').forEach(el => io.observe(el));
+    })();
+
+    /* ============================================================
+       6. Scroll reveal + mascot peek
+       ============================================================ */
+    (function () {
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      }), { threshold: .18 });
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+      /* The peek mascot starts clipped outside its section, so it has zero
+         visible area — observing it directly would never fire. Watch the
+         section instead and toggle the child. */
+      document.querySelectorAll('.peek').forEach(p => {
+        const host = p.closest('section'); if (!host) return;
+        const o = new IntersectionObserver(es => es.forEach(e => {
+          if (e.isIntersecting) { p.classList.add('in'); o.disconnect(); }
+        }), { threshold: .35 });
+        o.observe(host);
+      });
+    })();
+
+    /* ============================================================
+       7. Nav state
+       ============================================================ */
+    addEventListener('scroll', () => {
+      document.getElementById('nav').classList.toggle('scrolled', scrollY > 40);
+    }, { passive: true });
+
+    /* ============================================================
+       8. Match-3 core — shared by the phone and the demo board
+       Flood fill collects the connected same-colour region around a
+       cell; gravity drops survivors and refills from the top.
+       ============================================================ */
+    function makeGame(size) {
+      const idx = (r, c) => r * size + c;
+      const newColor = () => Math.floor(Math.random() * 5);
+      let grid = Array.from({ length: size * size }, newColor);
+
+      function region(start) {
+        const target = grid[start], seen = new Set([start]), stack = [start], out = [];
+        while (stack.length) {
+          const i = stack.pop(); out.push(i);
+          const r = Math.floor(i / size), c = i % size;
+          [[r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]].forEach(([nr, nc]) => {
+            if (nr < 0 || nc < 0 || nr >= size || nc >= size) return;
+            const n = idx(nr, nc);
+            if (!seen.has(n) && grid[n] === target) { seen.add(n); stack.push(n); }
+          });
+        }
+        return out;
+      }
+      function gravity() {
+        for (let c = 0; c < size; c++) {
+          const col = [];
+          for (let r = size - 1; r >= 0; r--) { const v = grid[idx(r, c)]; if (v !== null) col.push(v); }
+          for (let r = size - 1, k = 0; r >= 0; r--, k++) grid[idx(r, c)] = k < col.length ? col[k] : newColor();
+        }
+      }
+      /* Biggest available group — the demo board uses this to always
+         make a visibly satisfying move rather than a random dud. */
+      function bestMove() {
+        let best = null;
+        const checked = new Set();
+        for (let i = 0; i < grid.length; i++) {
+          if (checked.has(i)) continue;
+          const g = region(i);
+          g.forEach(x => checked.add(x));
+          if (g.length >= 2 && (!best || g.length > best.length)) best = g;
+        }
+        return best;
+      }
+      return {
+        size,
+        get grid() { return grid; },
+        set grid(v) { grid = v; },
+        region, gravity, bestMove, reseed() { grid = Array.from({ length: size * size }, newColor); }
+      };
+    }
+
+    /* ------------------------------------------------------------
+       SCORING — the knob that defines how the game *feels*.
+       Deliberately plain right now: linear with a mild streak bonus.
+       See the note in chat — this one is yours to shape.
+       ------------------------------------------------------------ */
+    function scoreFor(groupSize, streakCount) {
+      // TODO(you): design the real curve.
+      return groupSize * 10 + streakCount * 5;
+    }
+
+    /* ============================================================
+       9. The playable phone board
+       ============================================================ */
+    (function playable() {
+      const boardEl = document.getElementById('board');
+      const comboEl = document.getElementById('combo');
+      if (!boardEl) return;
+      const game = makeGame(6);
+      let score = 0, moves = 20, streak = 0, isPopping = false;
+      let activeTargetColor = 0;
+      let targetCubesRemaining = 0; /* count of target-color cubes still on board in this round */
+
+      function updateFindBanner(colorIndex) {
+        activeTargetColor = colorIndex;
+        /* Count how many cubes of this color are currently on the board */
+        targetCubesRemaining = game.grid.filter(v => v === colorIndex).length;
+        const findPhoneTileImg = document.getElementById('findPhoneTileImg');
+        if (findPhoneTileImg) {
+          findPhoneTileImg.src = TILES[activeTargetColor].img;
+          findPhoneTileImg.classList.remove('pop');
+          void findPhoneTileImg.offsetWidth;
+          findPhoneTileImg.classList.add('pop');
+        }
+      }
+
+      /* Pick a random color from those still present on the board (excluding current) */
+      function pickRandomColorOnBoard(exclude) {
+        const present = [...new Set(game.grid.filter(v => v !== null && v !== undefined && v !== exclude))];
+        if (present.length === 0) return null;
+        return present[Math.floor(Math.random() * present.length)];
+      }
+
+      function advanceToNextColor() {
+        const next = pickRandomColorOnBoard(activeTargetColor);
+        if (next !== null && next !== undefined) {
+          updateFindBanner(next);
+        } else {
+          /* No other color on board — board empty, reseed */
+          setTimeout(seed, 500);
+        }
+      }
+
+      function ensureTargetColorOnBoard() {
+        /* Pick a random color from whatever is actually on the mixed board */
+        const randomColor = pickRandomColorOnBoard(-1);
+        if (randomColor !== null && randomColor !== undefined) {
+          updateFindBanner(randomColor);
+        } else {
+          updateFindBanner(0);
+        }
+      }
+
+      function paint() {
+        boardEl.innerHTML = '';
+        game.grid.forEach((col, i) => {
+          if (col === null || col === undefined) {
+            /* Empty slot placeholder — invisible, keeps grid alignment */
+            const empty = document.createElement('div');
+            empty.className = 'tile tile--empty';
+            boardEl.appendChild(empty);
+            return;
+          }
+          const t = document.createElement('button');
+          t.className = 'tile'; t.dataset.i = i;
+          t.style.backgroundImage = `url(${TILES[col].img})`;
+          t.style.animationDelay = (i % 6) * 0.02 + 's';
+          t.setAttribute('aria-label', 'block');
+          boardEl.appendChild(t);
+        });
+      }
+
+      /* Drop tiles down within each column, leaving nulls at the top — no refill */
+      function dropOnly() {
+        const size = game.size;
+        for (let c = 0; c < size; c++) {
+          const col = [];
+          for (let row = size - 1; row >= 0; row--) {
+            const v = game.grid[row * size + c];
+            if (v !== null && v !== undefined) col.push(v);
+          }
+          for (let row = size - 1; row >= 0; row--) {
+            const k = size - 1 - row;
+            game.grid[row * size + c] = k < col.length ? col[k] : null;
+          }
+        }
+      }
+
+      /* Update tile visuals in-place — NO DOM rebuild, no flash.
+         Use this after every single-cube pop during a round. */
+      function updateTiles() {
+        const els = boardEl.children;
+        game.grid.forEach((col, i) => {
+          const el = els[i];
+          if (!el) return;
+          if (col === null || col === undefined) {
+            el.className = 'tile tile--empty';
+            el.style.backgroundImage = '';
+            el.removeAttribute('data-i');
+          } else {
+            el.className = 'tile';
+            el.style.backgroundImage = `url(${TILES[col].img})`;
+            el.dataset.i = i;
+          }
+        });
+      }
+      function syncHud() {
+        document.getElementById('uiScore').textContent = score.toLocaleString();
+        document.getElementById('uiMoves').textContent = moves;
+      }
+      function showCombo(n) {
+        if (n < 3) return;
+        const words = { 3: 'NICE!', 4: 'GREAT!', 5: 'SUPER!', 6: 'AMAZING!' };
+        comboEl.textContent = words[Math.min(n, 6)] || 'LEGENDARY!';
+        comboEl.style.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        comboEl.classList.remove('show'); void comboEl.offsetWidth; comboEl.classList.add('show');
+      }
+      function seed() {
+        game.reseed();
+        score = 0; moves = 20; streak = 0;
+        activeTargetColor = 0;
+        ensureTargetColorOnBoard();
+        paint();
+        syncHud();
+      }
+
+      boardEl.addEventListener('click', async e => {
+        if (isPopping) return;
+        const t = e.target.closest('.tile'); if (!t) return;
+        const i = +t.dataset.i;
+        const clickedColor = game.grid[i];
+        if (clickedColor === null || clickedColor === undefined) return;
+
+        /* Only the target color in FIND banner can be tapped */
+        if (clickedColor !== activeTargetColor) {
+          /* Wrong color — wobble tile, pulse FIND banner */
+          t.animate([
+            { transform: 'translateX(-6px) scale(1.05)' },
+            { transform: 'translateX(6px) scale(1.05)' },
+            { transform: 'translateX(-4px)' },
+            { transform: 'translateX(4px)' },
+            { transform: 'none' }
+          ], { duration: 280 });
+          const findPhoneTileImg = document.getElementById('findPhoneTileImg');
+          if (findPhoneTileImg) {
+            findPhoneTileImg.classList.remove('pop');
+            void findPhoneTileImg.offsetWidth;
+            findPhoneTileImg.classList.add('pop');
+          }
+          return;
+        }
+
+        /* ── Pop exactly this ONE cube of the target color ── */
+        isPopping = true;
+        streak++;
+        score += 10 + streak * 2;
+        moves = Math.max(0, moves - 1);
+        targetCubesRemaining = Math.max(0, targetCubesRemaining - 1);
+        syncHud();
+
+        /* Highlight briefly */
+        t.classList.add('hi');
+        await sleep(100);
+
+        /* BOOM — remove this single cube with confetti */
+        const r = t.getBoundingClientRect();
+        t.classList.remove('hi');
+        t.classList.add('pop');
+        burst(r.left + r.width / 2, r.top + r.height / 2, TILES[clickedColor].c, 7);
+        game.grid[i] = null;
+        await sleep(200);
+
+        /* Drop tiles down — in-place update, NO full DOM rebuild */
+        dropOnly();
+        updateTiles();
+        syncHud();
+
+        /* If all target-color cubes from this round are cleared → next color */
+        if (targetCubesRemaining <= 0) {
+          await sleep(350);
+          /* Now refill the board with random tiles before picking next color */
+          game.gravity();
+          paint();
+          await sleep(150);
+          advanceToNextColor();
+        }
+
+        if (moves === 0) { setTimeout(seed, 900); }
+        isPopping = false;
+      });
+
+      seed();
+      setInterval(() => {
+        const el = document.getElementById('uiTime');
+        let v = +el.textContent - 1; if (v < 0) v = 54;
+        el.textContent = v;
+      }, 1000);
+    })();
+
+    /* ============================================================
+       10. The self-playing demo board
+       Teaches the mechanic by performing it: highlight the biggest
+       group, pop it, let gravity refill, repeat. Runs only while
+       visible so it never burns cycles off-screen.
+       ============================================================ */
+    (function demo() {
+      const el = document.getElementById('demoBoard');
+      if (!el || reduced) return;
+      const SIZE = 5, game = makeGame(SIZE);
+      let visible = false;
+      let colorCycleIndex = 0;
+
+      function seedBoard() {
+        game.reseed();
+        const palette = [0, 1, 2, 3, 4, 5];
+        palette.forEach(c => {
+          let count = game.grid.filter(v => v === c).length;
+          while (count < 2) {
+            const rIdx = Math.floor(Math.random() * (SIZE * SIZE));
+            if (game.grid[rIdx] !== c) {
+              game.grid[rIdx] = c;
+              count++;
+            }
+          }
+        });
+      }
+
+      function paint() {
+        el.innerHTML = '';
+        game.grid.forEach((col, i) => {
+          const d = document.createElement('div');
+          d.className = 'dtile';
+          d.style.backgroundImage = `url(${TILES[col].img})`;
+          d.style.animationDelay = (i % SIZE) * 0.03 + 's';
+          el.appendChild(d);
+        });
+      }
+
+      async function loop() {
+        while (true) {
+          if (!visible) { await sleep(300); continue; }
+
+          /* 1. Select target color in sequence and update FIND banner */
+          const targetColor = colorCycleIndex % TILES.length;
+          colorCycleIndex++;
+
+          const findTileImg = document.getElementById('findTileImg');
+          if (findTileImg) {
+            findTileImg.src = TILES[targetColor].img;
+            findTileImg.classList.remove('pop');
+            void findTileImg.offsetWidth;
+            findTileImg.classList.add('pop');
+          }
+
+          /* 2. Find all tiles matching this color on the mixed board */
+          let targetIndices = [];
+          game.grid.forEach((col, i) => {
+            if (col === targetColor) targetIndices.push(i);
+          });
+
+          if (targetIndices.length < 2) {
+            const needed = 2 - targetIndices.length;
+            for (let k = 0; k < needed; k++) {
+              const freeIdx = Math.floor(Math.random() * (SIZE * SIZE));
+              game.grid[freeIdx] = targetColor;
+            }
+            paint();
+            targetIndices = [];
+            game.grid.forEach((col, i) => {
+              if (col === targetColor) targetIndices.push(i);
+            });
+          }
+
+          /* 3. Highlight chosen color tiles on the full-color mixed board */
+          targetIndices.forEach(i => {
+            if (el.children[i]) el.children[i].classList.add('hi');
+          });
+          await sleep(500);
+
+          /* 4. ONE BY ONE BOOM! Pop each tile of the chosen color sequentially with confetti */
+          for (const idx of targetIndices) {
+            if (!visible) break;
+            const cell = el.children[idx];
+            if (!cell) continue;
+            const rect = cell.getBoundingClientRect();
+            cell.classList.remove('hi');
+            cell.classList.add('gone');
+            burst(rect.left + rect.width / 2, rect.top + rect.height / 2, TILES[targetColor].c, 5);
+            game.grid[idx] = null;
+            await sleep(240);
+          }
+
+          await sleep(350);
+
+          /* 5. Gravity refill & repaint */
+          game.gravity();
+          paint();
+
+          await sleep(700);
+        }
+      }
+
+      seedBoard();
+      paint();
+      new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: .3 }).observe(el);
+      loop();
+    })();
+
+    /* ============================================================
+       11. Confetti — fired by an actual pop, never by the cursor
+       ============================================================ */
+    function burst(x, y, color, count = 18) {
+      if (reduced) return;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti';
+        p.style.cssText = `left:${x}px;top:${y}px;background:${color || COLORS[i % COLORS.length]};`;
+        document.body.appendChild(p);
+        const dx = rand(-150, 150), dy = rand(-210, -60);
+        p.animate([
+          { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+          { transform: `translate(${dx}px,${dy}px) rotate(${rand(180, 720)}deg)`, opacity: 1, offset: .35 },
+          { transform: `translate(${dx * 1.5}px,${rand(240, 460)}px) rotate(${rand(400, 900)}deg)`, opacity: 0 }
+        ], { duration: rand(1100, 1800), easing: 'cubic-bezier(.2,.7,.4,1)' }).onfinish = () => p.remove();
+      }
+    }
+
+    /* ============================================================
+       12. Screen switcher
+       ============================================================ */
+    document.querySelectorAll('.screen-switch button').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.screen-switch button').forEach(x => x.classList.remove('on'));
+        b.classList.add('on');
+        document.querySelectorAll('.screen-pane').forEach(p => p.classList.toggle('on', p.dataset.pane === b.dataset.go));
+      });
+    });
+    document.getElementById('tryBtn').addEventListener('click', () => {
+      document.querySelector('[data-go="play"]').click();
+      document.getElementById('phone').scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+  </script>
+</body>
+
+</html>
