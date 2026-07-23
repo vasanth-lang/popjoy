@@ -522,7 +522,7 @@
       inset: 0;
       display: none;
       flex-direction: column;
-      padding: 32px 11px 9px;
+      padding: 32px 11px 16px;
     }
 
     .screen-pane.on {
@@ -677,6 +677,8 @@
 
     .tabbar {
       margin-top: auto;
+      margin-inline: 4px;
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-around;
       align-items: center;
@@ -2304,6 +2306,8 @@
         ensureTargetColorOnBoard();
         paint();
         syncHud();
+        const timeEl = document.getElementById('uiTime');
+        if (timeEl) timeEl.textContent = 54;
       }
 
       boardEl.addEventListener('click', async e => {
@@ -2372,9 +2376,26 @@
       });
 
       seed();
+
+      let isVisible = false;
+      const visibilityObserver = new IntersectionObserver(entries => {
+        isVisible = entries[0].isIntersecting;
+      }, { threshold: 0.1 });
+      visibilityObserver.observe(boardEl);
+
       setInterval(() => {
+        const playPane = document.querySelector('.screen-pane[data-pane="play"]');
+        if (!playPane || !playPane.classList.contains('on') || !isVisible) return;
+
         const el = document.getElementById('uiTime');
-        let v = +el.textContent - 1; if (v < 0) v = 54;
+        if (!el) return;
+        let v = parseInt(el.textContent, 10);
+        if (isNaN(v)) v = 54;
+        v--;
+        if (v < 0) {
+          v = 54;
+          seed();
+        }
         el.textContent = v;
       }, 1000);
     })();
