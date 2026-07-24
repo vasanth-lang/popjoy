@@ -2029,7 +2029,7 @@
       <div class="footer-links">
         <a href="#top">Back to top</a>
         <span class="sep">·</span>
-        <a href="#privacy" id="privacyLink">Privacy Policy</a>
+        <a href="#privacy-policy" id="privacyLink">Privacy Policy</a>
         <span class="sep">·</span>
         <a href="#terms" id="termsLink">Terms &amp; Conditions</a>
       </div>
@@ -2736,7 +2736,7 @@
     document.getElementById('privacyLink').addEventListener('click', (e) => {
       e.preventDefault();
       openDoc('privacy');
-      history.replaceState(null, '', '#privacy');
+      history.replaceState(null, '', '#privacy-policy');
     });
 
     document.getElementById('termsLink').addEventListener('click', (e) => {
@@ -2759,7 +2759,7 @@
     // Auto-open modal when URL hash is #privacy or #terms
     function openFromHash() {
       const hash = window.location.hash;
-      if (hash === '#privacy') openDoc('privacy');
+      if (hash === '#privacy-policy') openDoc('privacy');
       else if (hash === '#terms') openDoc('terms');
     }
 
