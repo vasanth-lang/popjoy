@@ -2029,9 +2029,9 @@
       <div class="footer-links">
         <a href="#top">Back to top</a>
         <span class="sep">·</span>
-        <a href="#" id="privacyLink">Privacy Policy</a>
+        <a href="#privacy" id="privacyLink">Privacy Policy</a>
         <span class="sep">·</span>
-        <a href="#" id="termsLink">Terms &amp; Conditions</a>
+        <a href="#terms" id="termsLink">Terms &amp; Conditions</a>
       </div>
     </div>
   </footer>
@@ -2729,16 +2729,20 @@
       docModal.classList.remove('open');
       docModal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
+      // Clear the hash from the URL without triggering a reload
+      history.replaceState(null, '', window.location.pathname + window.location.search);
     }
 
     document.getElementById('privacyLink').addEventListener('click', (e) => {
       e.preventDefault();
       openDoc('privacy');
+      history.replaceState(null, '', '#privacy');
     });
 
     document.getElementById('termsLink').addEventListener('click', (e) => {
       e.preventDefault();
       openDoc('terms');
+      history.replaceState(null, '', '#terms');
     });
 
     modalClose.addEventListener('click', closeDoc);
@@ -2751,6 +2755,23 @@
         closeDoc();
       }
     });
+
+    // Auto-open modal when URL hash is #privacy or #terms
+    function openFromHash() {
+      const hash = window.location.hash;
+      if (hash === '#privacy') openDoc('privacy');
+      else if (hash === '#terms') openDoc('terms');
+    }
+
+    // Run on initial page load — defer slightly so the page fully settles first
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(openFromHash, 0));
+    } else {
+      setTimeout(openFromHash, 0);
+    }
+
+    // Also respond to browser back/forward navigation
+    window.addEventListener('hashchange', openFromHash);
   </script>
 </body>
 
