@@ -3,7 +3,7 @@
 
   <!-- Main page -->
   <url>
-    <loc>https://yourdomain.com/</loc>
+    <loc>https://www.popjoy.site/</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
@@ -11,7 +11,7 @@
 
   <!-- Game modes section -->
   <url>
-    <loc>https://yourdomain.com/#modes</loc>
+    <loc>https://www.popjoy.site/#modes</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -19,7 +19,7 @@
 
   <!-- Screenshots section -->
   <url>
-    <loc>https://yourdomain.com/#screens</loc>
+    <loc>https://www.popjoy.site/#screens</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -27,7 +27,7 @@
 
   <!-- How to play section -->
   <url>
-    <loc>https://yourdomain.com/#how</loc>
+    <loc>https://www.popjoy.site/#how</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -35,7 +35,7 @@
 
   <!-- Reviews section -->
   <url>
-    <loc>https://yourdomain.com/#reviews</loc>
+    <loc>https://www.popjoy.site/#reviews</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -43,7 +43,7 @@
 
   <!-- Download / Get section -->
   <url>
-    <loc>https://yourdomain.com/#get</loc>
+    <loc>https://www.popjoy.site/#get</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
